@@ -1,7 +1,7 @@
 # 审核模式 —— 审核方（只读方）的组合，跨领域通用
 # 安装：plugin_manager install_bundle，target = 本目录绝对路径
 # 显示名：审核模式 ｜ id: audit ｜ order: 5 ｜ 不设为 profile 默认（手动在新会话里选）
-# 仓库：https://github.com/LA-D-13931/dsh-audit-mode ｜ 安装：plugin_manager install_bundle 本目录
+# 发布版由源仓库的 同步发布.mjs 生成；请勿手改本文件
 - insert:
     # 宿主级强制层：只对 agentPreset=audit 的会话生效（工具白名单 + 写路径检查 + JSONL 审计日志）
     # 必须与 preset 行同级、放在 bundle patch 里；不能放进 preset 的 plugins 列表（否则看不到宿主域 agent）。

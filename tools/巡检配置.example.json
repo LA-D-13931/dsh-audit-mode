@@ -7,10 +7,13 @@
   "sensitivePatterns": [
     "scripts/check-",
     "scripts/gen-",
+    "content/tasks/",
+    "content/figure-",
     "AGENTS.md",
     ".github/workflows/",
     "package.json",
-    "pnpm-lock.yaml"
+    "pnpm-lock.yaml",
+    "requirements.txt"
   ],
   "sessionsCwd": "/path/to/audited-repo",
   "baselineFile": "tools/巡检基线.json",

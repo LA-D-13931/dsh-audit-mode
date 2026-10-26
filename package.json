@@ -2,7 +2,7 @@
   "name": "dsh-audit-mode",
   "version": "0.1.0",
   "private": false,
-  "description": "DeepSeek Harness 审核模式：一个只读、可审计的“监督 agent”预设；宿主级 enforce 保证写不进被审库，配套会话审计/要求台账/评测集/巡检/转交生成工具。",
+  "description": "DeepSeek Harness 审核模式：只读、可审计的监督 agent 预设 + 宿主级 enforce + 审核工具。",
   "type": "module",
   "license": "MIT",
   "keywords": [
@@ -28,6 +28,8 @@
     "LICENSE",
     "NOTICE",
     "SECURITY.md",
+    "CHANGELOG.md",
+    "自检.sh",
     "tools"
   ],
   "engines": {

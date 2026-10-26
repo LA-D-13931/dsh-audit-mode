@@ -74,6 +74,12 @@ node tools/巡检.mjs --self-test
 node tools/生成转交.mjs --self-test
 ```
 
+## 本地自检
+
+```bash
+bash 自检.sh
+```
+
 ## 归因
 
 - `enforce.js` 的宿主级 restrict/guard 结构参考 [dsh-qa-preset](https://github.com/taoggt/dsh-qa-preset)（MIT）——见 `NOTICE`。

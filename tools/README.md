@@ -11,13 +11,13 @@
 ## 1. 会话审计（`会话审计.mjs`）
 
 ```bash
-node 审核工具/会话审计.mjs --cwd /被审/工作区 --limit 3
-node 审核工具/会话审计.mjs --cwd /被审/工作区 \
+node tools/会话审计.mjs --cwd /被审/工作区 --limit 3
+node tools/会话审计.mjs --cwd /被审/工作区 \
   --forbid '/审核工作区|10_审计方的要求' \
   --must-read '10_审计方的要求|01_轮次' \
   --must-run '审核自检|检查交接通道'
-node 审核工具/会话审计.mjs --list
-node 审核工具/会话审计.mjs --self-test
+node tools/会话审计.mjs --list
+node tools/会话审计.mjs --self-test
 ```
 
 输出：cwd/preset/permission、要求候选、写动作、命令、红线（`FORBIDDEN_WRITE`/`MISSING_READ`/`MISSING_RUN`）与提醒（`CLAIM_NO_TOOL`）。
@@ -26,8 +26,8 @@ node 审核工具/会话审计.mjs --self-test
 ## 2. 要求台账（`检查要求台账.mjs` + `要求台账.template.json`）
 
 ```bash
-cp 审核工具/要求台账.template.json 要求台账.json
-node 审核工具/检查要求台账.mjs --ledger 要求台账.json --root .
+cp tools/要求台账.template.json 要求台账.json
+node tools/检查要求台账.mjs --ledger 要求台账.json --root .
 ```
 
 核「对话里的要求→纪律落点→版本」；退出码 0 全入册 / 4 只有计划内缺口 / 1 不合格 / 2 找不到 / 3 崩。
@@ -35,8 +35,8 @@ node 审核工具/检查要求台账.mjs --ledger 要求台账.json --root .
 ## 3. 转交件生成（`生成转交.mjs` + `findings.example.json`）
 
 ```bash
-node 审核工具/生成转交.mjs --findings findings.json \
-  --out 审核工具/../要求/00_给开发agent的转述提示词_<轮次>.md
+node tools/生成转交.mjs --findings findings.json \
+  --out ../要求/00_给开发agent的转述提示词_<轮次>.md
 ```
 
 每条 finding：`file:line` / 现象 / 复现命令 / 期望 vs 实际 / 修法方向（不给补丁）/ 验证命令 / 禁止事项。`--out` 只允许写审核方工作区或临时目录。
@@ -44,8 +44,8 @@ node 审核工具/生成转交.mjs --findings findings.json \
 ## 4. 评测集（`跑评测.mjs` + `评测集/`）
 
 ```bash
-node 审核工具/跑评测.mjs          # 11 条已知用例；0 / 1 / 2 / 3
-node 审核工具/跑评测.mjs --list
+node tools/跑评测.mjs          # 11 条已知用例；0 / 1 / 2 / 3
+node tools/跑评测.mjs --list
 ```
 
 `kind=clean` 红了=假红；`kind=defect` 绿了=漏检。新缺陷/漏检确认后**长成一条用例**。
@@ -53,10 +53,10 @@ node 审核工具/跑评测.mjs --list
 ## 5. 巡检（`巡检.mjs` + `巡检配置.example.json`）
 
 ```bash
-cp 审核工具/巡检配置.example.json 审核工具/巡检配置.json   # 改成你的被审库/状态源
-node 审核工具/巡检.mjs
-node 审核工具/巡检.mjs --update-baseline   # “已看过”，不代表已修
-node 审核工具/巡检.mjs --self-test
+cp tools/巡检配置.example.json tools/巡检配置.json   # 改成你的被审库/状态源
+node tools/巡检.mjs
+node tools/巡检.mjs --update-baseline   # “已看过”，不代表已修
+node tools/巡检.mjs --self-test
 ```
 
 巡检：被审库自上次以来的提交（敏感路径=判据/生成器/答案键/CI/纪律）、状态源是否落后 HEAD、欠账是否增加、新会话。0 无红线 / 1 有红线 / 2 没验成。

@@ -16,7 +16,7 @@
         "section": "1",
         "version": "2026-10-26"
       },
-      "artifact_evidence": ["审核工具/会话审计.mjs"],
+      "artifact_evidence": ["tools/会话审计.mjs"],
       "status": "landed",
       "checked_by": "评测夹具",
       "checked_at": "2026-10-26T22:00+08:00"

@@ -23,8 +23,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
-
-const MAGIC = 0x28b52ffd;
+import {
+  collectSessionFiles, readHeader, readSessionEvents, SUPPORTED_VERSION,
+} from "./lib/sessionlog.mjs";
 const REQUIRE_RE = /(以后|今后|每轮|每次|必须|务必|不许|禁止|不能|一律|要求|约定|纪律|铁律|记住|长期)/;
 const CLAIM_RE = /(已完成|做完了|已修|修好|已跑|跑过|已验证|已验|已落|已补|已提交|已归档|通过|交付|done|fixed|passed)/i;
 const WRITE_TOOL_NAMES = new Set([
@@ -41,6 +42,7 @@ function parseArgs(argv) {
     cwd: [], session: [], since: null, until: null, limit: 3,
     forbid: [], mustRead: [], mustRun: [], json: false, list: false,
     noContent: false, maxExcerpt: 120, selfTest: false, showTools: false,
+    dumpEvents: false, limitEvents: 5000,
   };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
@@ -60,6 +62,8 @@ function parseArgs(argv) {
       case "--list": o.list = true; break;
       case "--no-content": o.noContent = true; break;
       case "--show-tools": o.showTools = true; break;
+      case "--dump-events": o.dumpEvents = true; break;
+      case "--limit-events": o.limitEvents = Number(next()); break;
       case "--self-test": o.selfTest = true; break;
       case "-h": case "--help": printHelp(); process.exit(0); break;
       default: throw new Error("未知参数：" + a);
@@ -87,91 +91,12 @@ function printHelp() {
   --max-excerpt N      片段最长字符（默认 120）
   --no-content         不输出原文片段
   --show-tools         打印工具调用样本（排查假红用）
+  --dump-events        打印原始事件（JSONL；排查/交给别的工具）
+  --limit-events N     每个会话最多打印 N 条事件（默认 5000）
   --json               机器可读输出
   --list               只列会话元信息
   --self-test          红/绿两个样本自证
 退出码：0 无红线 ／ 1 有红线 ／ 2 没验成 ／ 3 崩`);
-}
-
-// ---------------------------------------------------------------- zstd 多帧解码
-
-function findMagic(buf, from) {
-  for (let i = from; i <= buf.length - 4; i++) if (buf.readUInt32BE(i) === MAGIC) return i;
-  return -1;
-}
-
-/** 解 zstd 多帧；若 buf 不是 zstd（例如演练用的明文 .jsonl），原样返回。 */
-function decodeZstd(buf) {
-  if (buf.length < 4 || buf.readUInt32BE(0) !== MAGIC) return buf.toString("utf8");
-  const starts = [];
-  for (let i = 0; i <= buf.length - 4; i++) if (buf.readUInt32BE(i) === MAGIC) starts.push(i);
-  const parts = [];
-  let i = 0;
-  while (i < starts.length) {
-    let ok = false;
-    for (let j = i; j < starts.length; j++) {
-      const end = j + 1 < starts.length ? starts[j + 1] : buf.length;
-      try {
-        parts.push(zlib.zstdDecompressSync(buf.subarray(starts[i], end)));
-        i = j + 1; ok = true; break;
-      } catch { /* 可能是帧内伪魔数，延长到下一帧再试 */ }
-    }
-    if (!ok) throw new Error("zstd 帧解不开（可能是日志损坏）");
-  }
-  return Buffer.concat(parts).toString("utf8");
-}
-
-function decodeFirstFrame(buf) {
-  if (buf.length < 4 || buf.readUInt32BE(0) !== MAGIC) return buf.toString("utf8");
-  const second = findMagic(buf, 4);
-  const end = second >= 0 ? second : buf.length;
-  try { return zlib.zstdDecompressSync(buf.subarray(0, end)).toString("utf8"); } catch { return ""; }
-}
-
-function parseJsonl(text) {
-  const out = [];
-  for (const line of text.split("\n")) {
-    if (!line.trim()) continue;
-    try { out.push(JSON.parse(line)); } catch { /* 跳过坏行 */ }
-  }
-  return out;
-}
-
-function collectSessionFiles(root, depth = 0, acc = []) {
-  let st;
-  try { st = fs.statSync(root); } catch { return acc; }
-  if (st.isFile()) {
-    if (/\.jsonl(\.zstd)?$/.test(root)) acc.push(root);
-    return acc;
-  }
-  if (!st.isDirectory() || depth > 4) return acc;
-  for (const name of fs.readdirSync(root)) {
-    collectSessionFiles(path.join(root, name), depth + 1, acc);
-  }
-  return acc;
-}
-
-function readHeader(file) {
-  // 只读文件头（最多 1MB）——不能为了看 header 把几百 MB 日志全读进来
-  let fd;
-  try { fd = fs.openSync(file, "r"); } catch { return null; }
-  try {
-    const size = fs.fstatSync(fd).size;
-    if (!size) return null;
-    const cap = Math.min(size, 1024 * 1024);
-    const buf = Buffer.alloc(cap);
-    fs.readSync(fd, buf, 0, cap, 0);
-    let end = cap;
-    if (cap >= 4 && buf.readUInt32BE(0) === MAGIC) {
-      const second = findMagic(buf, 4);
-      if (second >= 0) end = second;
-    }
-    const first = decodeZstd(buf.subarray(0, end)).split("\n").find((l) => l.trim());
-    if (!first) return null;
-    try { return JSON.parse(first); } catch { return null; }
-  } finally {
-    try { fs.closeSync(fd); } catch { /* ignore */ }
-  }
 }
 
 // ---------------------------------------------------------------- 事件归类
@@ -233,7 +158,7 @@ function isWriteLike(tc) {
 
 /** @returns 分析结果 */
 function analyzeSession(file, meta, opts) {
-  const events = parseJsonl(decodeZstd(fs.readFileSync(file)));
+  const { events } = readSessionEvents(file);
   const header = events.find((e) => e.type === "session") || meta || {};
   const permission = events.find((e) => e.type === "permission/preset");
   const toolCalls = events.filter((e) => e.type === "tool/call");
@@ -468,9 +393,14 @@ function main() {
     return 2;
   }
   const metas = [];
+  const unsupported = [];
   for (const f of files) {
     const h = readHeader(f);
     if (!h || h.type !== "session") continue;
+    if (h.version !== SUPPORTED_VERSION) {
+      unsupported.push({ file: f, version: h.version });
+      continue;
+    }
     if (opts.cwd.length && !opts.cwd.includes(h.cwd)) continue;
     if (opts.session.length) {
       const sid = h.id || path.basename(path.dirname(f));
@@ -481,6 +411,10 @@ function main() {
     metas.push({ file: f, header: h });
   }
   if (!metas.length) {
+    if (unsupported.length) {
+      console.log(`日志版本 ${[...new Set(unsupported.map((u) => u.version))].join("/")} 未支持（本工具只认 v${SUPPORTED_VERSION}）⇒ 没验成`);
+      return 2;
+    }
     console.log("过滤后没有会话（cwd/时间/session 条件太窄）⇒ 没验成");
     return 2;
   }
@@ -490,6 +424,22 @@ function main() {
   if (opts.list) {
     for (const m of metas) {
       console.log(`${new Date(m.header.createdAt || 0).toISOString()}  ${m.header.id}  ${m.header.cwd}  preset=${m.header.agentPreset || "?"}`);
+    }
+    return 0;
+  }
+
+  if (opts.dumpEvents) {
+    const max = Math.max(1, opts.limitEvents || 5000);
+    for (const m of picked) {
+      let events;
+      try {
+        events = readSessionEvents(m.file).events;
+      } catch (e) {
+        console.log("解日志失败：" + (e && e.message || e) + " ⇒ 没验成");
+        return 2;
+      }
+      for (const ev of events.slice(0, max)) console.log(JSON.stringify(ev));
+      if (events.length > max) console.error(`… ${m.header.id} 还有 ${events.length - max} 条未打印（--limit-events 调整）`);
     }
     return 0;
   }
