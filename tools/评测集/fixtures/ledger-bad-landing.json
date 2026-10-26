@@ -1,0 +1,23 @@
+{
+  "$comment": "缺陷夹具：声称已入册，但 landing.file 在磁盘上不存在 ⇒ 应退 1。",
+  "version": 1,
+  "items": [
+    {
+      "id": "R-eval-bad-landing",
+      "requirement": "以后所有报告都要给可复算中间量",
+      "source": {
+        "kind": "conversation",
+        "session": "session-fixture",
+        "time": "2026-10-26T21:00+08:00",
+        "quote": "以后所有报告都要给可复算中间量"
+      },
+      "landing": {
+        "file": "不存在的纪律文件.md",
+        "section": "§1",
+        "version": "2026-10-26"
+      },
+      "status": "landed",
+      "checked_at": "2026-10-26T22:00+08:00"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# 忽略：本机状态与用户数据
+tools/巡检配置.json
+tools/巡检基线.json
+tools/要求台账.json
+tools/findings.json
+reports/
+*.log
+enforce.jsonl
+.DS_Store
+node_modules/
+*.tgz

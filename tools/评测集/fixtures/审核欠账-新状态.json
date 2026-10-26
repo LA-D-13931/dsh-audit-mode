@@ -1,0 +1,28 @@
+{
+  "$comment": "欠账台账夹具：wrong / intentional / done 都已关闭 ⇒ 应退 0。",
+  "items": [
+    {
+      "id": "F-wrong",
+      "what": "审核方判错的发现（已撤回）",
+      "status": "wrong",
+      "retracted_at": "2026-10-26T22:50+08:00",
+      "retract_reason": "复跑 `python3 tools/会话审计.mjs` ⇒ 0 条红，原判据口径写宽",
+      "source": "评测夹具"
+    },
+    {
+      "id": "F-intentional",
+      "what": "对方有意为之、审核方接受",
+      "status": "intentional",
+      "reason": "`00_README.md` §7.2 明写深色模式是有意决定",
+      "by": "用户 2026-10-16 裁定",
+      "source": "评测夹具"
+    },
+    {
+      "id": "F-done",
+      "what": "已修复的发现",
+      "status": "done",
+      "landed_at": "r18 已落地并复核",
+      "source": "评测夹具"
+    }
+  ]
+}

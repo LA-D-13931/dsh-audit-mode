@@ -1,0 +1,12 @@
+{
+  "$comment": "欠账台账夹具：ignored（对方未回应）仍开放 ⇒ 应退 4，不能当关闭。",
+  "items": [
+    {
+      "id": "F-ignored",
+      "what": "对方三轮没回应",
+      "status": "ignored",
+      "age_rounds": 3,
+      "source": "评测夹具"
+    }
+  ]
+}

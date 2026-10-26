@@ -1,0 +1,105 @@
+{
+  "$comment": "审核评测集：每条用例 = 一个可跑命令 + 期望退出码。kind=clean 期望 0（红了=假红）；kind=defect 期望非 0（绿了=漏检）；kind=known-debt 期望 4；kind=env-limit 期望 2。新发现/漏检/用户反馈都要长成一条用例。",
+  "version": 1,
+  "cases": [
+    {
+      "id": "tool-session-audit-self-test",
+      "kind": "clean",
+      "title": "会话审计自带红绿样本",
+      "command": "node tools/会话审计.mjs --self-test",
+      "expect_exit": 0,
+      "source": "P0 工具自证",
+      "note": "绿样本 0 误报 + 坏样本命中三种红线"
+    },
+    {
+      "id": "tool-ledger-self-test",
+      "kind": "clean",
+      "title": "要求台账校验自带红绿样本",
+      "command": "node tools/检查要求台账.mjs --self-test",
+      "expect_exit": 0,
+      "source": "P0 工具自证",
+      "note": "绿样本 0 不合格；红样本命中缺落点/欠账分层/来源非法"
+    },
+    {
+      "id": "ledger-template-is-known-debt",
+      "kind": "known-debt",
+      "title": "台账模板本身含一条未入册示例（应退 4，不能退 0）",
+      "command": "node tools/检查要求台账.mjs --ledger tools/要求台账.template.json --root .",
+      "expect_exit": 4,
+      "source": "P0 模板",
+      "note": "模板故意保留一条 missing 示例，用来证明 4 与 0 分得开"
+    },
+    {
+      "id": "ledger-clean-fixture",
+      "kind": "clean",
+      "title": "合规台账夹具（应 0）",
+      "command": "node tools/检查要求台账.mjs --ledger tools/评测集/fixtures/ledger-good.json --root .",
+      "expect_exit": 0,
+      "source": "P1 夹具",
+      "note": "要求已入册且落点文件真实存在"
+    },
+    {
+      "id": "ledger-bad-landing-fixture",
+      "kind": "defect",
+      "title": "落点文件不存在（应 1，不能绿）",
+      "command": "node tools/检查要求台账.mjs --ledger tools/评测集/fixtures/ledger-bad-landing.json --root .",
+      "expect_exit": 1,
+      "source": "P1 夹具（历史形态：声称入册、磁盘没有）",
+      "note": "对应『自报与磁盘不符』"
+    },
+    {
+      "id": "ledger-missing-discipline-fixture",
+      "kind": "defect",
+      "title": "持久性要求只在对话里、没进纪律（应 4，不能绿）",
+      "command": "node tools/检查要求台账.mjs --ledger tools/评测集/fixtures/ledger-missing-discipline.json --root .",
+      "expect_exit": 4,
+      "source": "P1 夹具（历史形态：要求只在对话里）",
+      "note": "对应『对话中的要求没记入纪律』"
+    },
+    {
+      "id": "debt-ledger-new-statuses",
+      "kind": "clean",
+      "title": "欠账台账新状态口径（wrong/intentional/ignored）合规（应 0）",
+      "command": "python3 tools/检查审核欠账.py --ledger tools/评测集/fixtures/审核欠账-新状态.json",
+      "expect_exit": 0,
+      "source": "P1 夹具",
+      "note": "ignored 计欠账、wrong/intentional 已关闭；此夹具刻意不放 ignored 以测 0"
+    },
+    {
+      "id": "debt-ledger-ignored-is-debt",
+      "kind": "defect",
+      "title": "ignored 仍算开放欠账（应 4，不能 0）",
+      "command": "python3 tools/检查审核欠账.py --ledger tools/评测集/fixtures/审核欠账-ignored.json",
+      "expect_exit": 4,
+      "source": "P1 夹具",
+      "note": "对方未回应的 finding 不许被当成关闭"
+    },
+    {
+      "id": "tool-patrol-self-test",
+      "kind": "clean",
+      "title": "巡检自带红绿样本（敏感路径只提醒 / 工作树脏退 1）",
+      "command": "node tools/巡检.mjs --self-test",
+      "expect_exit": 0,
+      "source": "P1 工具自证",
+      "note": "临时 git 仓库夹具"
+    },
+    {
+      "id": "tool-handoff-gen-self-test",
+      "kind": "clean",
+      "title": "生成转交自带红绿样本",
+      "command": "node tools/生成转交.mjs --self-test",
+      "expect_exit": 0,
+      "source": "P1 工具自证",
+      "note": "绿样本可生成；红样本命中缺字段/非法严重度"
+    },
+    {
+      "id": "tool-enforce-self-test",
+      "kind": "clean",
+      "title": "宿主级 enforce 策略自带红绿样本",
+      "command": "node enforce.js --self-test",
+      "expect_exit": 0,
+      "source": "P0 硬约束",
+      "note": "写区内放行/写区外拒绝/系统变更拒绝/只读工具放行"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "$comment": "findings.json 示例：审核报告 §2 的机器可读源；生成转交提示词用。必填：id/severity/tag/location/phenomenon/evidence/expected/fixDirection/verifyCommand。",
+  "version": 1,
+  "meta": {
+    "round": "r8",
+    "requirementVersion": "r8",
+    "frozenHead": "947916b",
+    "worktree": "干净",
+    "reportPath": "reports/audit-YYYYMMDD.md",
+    "generatedAt": "2026-10-26T23:30+08:00"
+  },
+  "items": [
+    {
+      "id": "F-001",
+      "severity": "Blocker",
+      "tag": "Introduced",
+      "location": "path/to/project/check.py",
+      "phenomenon": "判据把 width=\"100%\" 直接当成 scale=1.0，12 张图的字号不达标却全绿",
+      "evidence": "`python3 path/to/check.py` ⇒ exit=0；`node tools/会话审计.mjs --cwd …` 中屏幕字号实测 7–8px",
+      "expected": "百分比宽度按正文列宽换算：scale = COL_PX / viewBox 宽；有效字号 ≥ 11px",
+      "fixDirection": "修正 scale 计算分支，补 12 张图的重测输出；不要改阈值",
+      "verifyCommand": "python3 path/to/check.py; echo EXIT=$?",
+      "forbid": [
+        "不要改判据阈值",
+        "不要缩小扫描面"
+      ],
+      "response": "fixed",
+      "status": "open"
+    },
+    {
+      "id": "F-002",
+      "severity": "Major",
+      "tag": "Pre-existing",
+      "location": "path/to/project/debt.json",
+      "phenomenon": "台账里有 done 但缺 landed_at，统计口径与判据不一致",
+      "evidence": "`python3 path/to/check.py` ⇒ 1 条；报告 §4 数据",
+      "expected": "done 必须带 landed_at；口径与审核欠账一致",
+      "fixDirection": "补 landed_at 或把状态改回 candidate；逐条给证据",
+      "verifyCommand": "python3 path/to/check.py; echo EXIT=$?",
+      "forbid": [
+        "不要为了让数字好看改 expected"
+      ],
+      "response": "ignored",
+      "status": "open"
+    }
+  ]
+}

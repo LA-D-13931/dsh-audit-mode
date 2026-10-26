@@ -1,0 +1,18 @@
+{
+  "$comment": "巡检配置示例：复制为 tools/巡检配置.json 后改成你自己的被审库与状态源。",
+  "version": 1,
+  "targetRepo": "/path/to/audited-repo",
+  "stateSource": "path/to/state-source.md",
+  "debtLedger": "path/to/audit-debt.json",
+  "sensitivePatterns": [
+    "scripts/check-",
+    "scripts/gen-",
+    "AGENTS.md",
+    ".github/workflows/",
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "sessionsCwd": "/path/to/audited-repo",
+  "baselineFile": "tools/巡检基线.json",
+  "maxCommits": 20
+}

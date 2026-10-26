@@ -1,0 +1,25 @@
+{
+  "$comment": "合规台账夹具：要求已入册，landing.file 真实存在（相对工作区根）。",
+  "version": 1,
+  "items": [
+    {
+      "id": "R-eval-good-1",
+      "requirement": "以后每轮先跑产物层自检，再写结论",
+      "source": {
+        "kind": "conversation",
+        "session": "session-fixture",
+        "time": "2026-10-26T21:00+08:00",
+        "quote": "以后每轮先跑产物层自检"
+      },
+      "landing": {
+        "file": "tools/README.md",
+        "section": "1",
+        "version": "2026-10-26"
+      },
+      "artifact_evidence": ["审核工具/会话审计.mjs"],
+      "status": "landed",
+      "checked_by": "评测夹具",
+      "checked_at": "2026-10-26T22:00+08:00"
+    }
+  ]
+}

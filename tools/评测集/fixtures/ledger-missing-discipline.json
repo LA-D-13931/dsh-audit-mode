@@ -1,0 +1,20 @@
+{
+  "$comment": "缺陷夹具：持久性要求只停在对话里、没进纪律 ⇒ 应退 4（计划内缺口），不能退 0。",
+  "version": 1,
+  "items": [
+    {
+      "id": "R-eval-missing-discipline",
+      "requirement": "以后所有交互图都必须有可访问名",
+      "source": {
+        "kind": "conversation",
+        "session": "session-fixture",
+        "time": "2026-10-26T21:00+08:00",
+        "quote": "以后所有交互图都必须有可访问名"
+      },
+      "landing": {},
+      "artifact_evidence": [],
+      "status": "missing",
+      "checked_at": "2026-10-26T22:00+08:00"
+    }
+  ]
+}

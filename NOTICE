@@ -1,0 +1,17 @@
+# NOTICE
+
+本项目的部分实现参考了以下 MIT 许可项目与公开文章：
+
+## dsh-qa-preset（MIT）
+
+- 仓库：https://github.com/taoggt/dsh-qa-preset
+- 参考部分：`enforce.js` 的宿主级强制层结构——通过 `agentPreset` 持久投影识别目标会话，在 `agent.ctx` 上注册 `tools.restrict({deny})` 与单调 `tools.guard`，用 `agent/created`、`agent-preset/selected`、`agent/pre-step`、`agent/disposed` 维护生命周期，并处理 own-layer 工具无法被 restrict 覆盖的情况。
+- 本项目的 `enforce.js` 在此基础上改写为「审核模式」策略（写路径必须在审核工作区、shell 静态检查、Team spawn 拒绝、JSONL 审计日志）。
+
+## Anthropic Claude Code 团队文章
+
+- How the Claude Code team does code review（2026-10-15）：https://claude.dev/blog/solving-code-review-at-anthropic/
+- 参考部分：风险分级与人工签字、finding 由其他 agent 复核后再发布、重要/既有问题/nit 标签、每条 finding 必须被回应、3 轮收敛与 diff-only 复审、事故→评测集、reviewer 自身也要被检查。
+- 本项目把这些原则落成 persona 规则、报告模板、评测集与巡检。
+
+以上参考都不改变本仓库的 MIT 许可。

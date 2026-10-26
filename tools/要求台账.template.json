@@ -1,0 +1,42 @@
+{
+  "$comment": "要求台账模板 —— 每条「要求」都要能回答：谁在什么时候说的（source）？记进了哪份纪律（landing）？哪条证据证明它被执行了（artifact_evidence）？状态是什么（status）？",
+  "version": 1,
+  "items": [
+    {
+      "id": "R-000-示例-已入册",
+      "requirement": "以后每轮必须跑审核自检，并把结果写进轮次状态",
+      "source": {
+        "kind": "conversation",
+        "session": "session-XXXXXXXX",
+        "time": "2026-10-16T22:55+08:00",
+        "quote": "以后每轮必须跑审核自检"
+      },
+      "landing": {
+        "file": "tools/README.md",
+        "section": "§7.2.1",
+        "version": "2026-10-16"
+      },
+      "artifact_evidence": [
+        "tools/会话审计.mjs"
+      ],
+      "status": "landed",
+      "checked_by": "审核模式（会话审计 + 人工抽检）",
+      "checked_at": "2026-10-25T16:30+08:00"
+    },
+    {
+      "id": "R-000-示例-未入册",
+      "requirement": "以后所有报告都先给产物层结论，再给判据层附注",
+      "source": {
+        "kind": "conversation",
+        "session": "session-XXXXXXXX",
+        "time": "2026-10-25T15:00+08:00",
+        "quote": "报告用产物层语言，判据层作附注"
+      },
+      "landing": {},
+      "artifact_evidence": [],
+      "status": "missing",
+      "checked_by": "审核模式",
+      "checked_at": "2026-10-25T16:30+08:00"
+    }
+  ]
+}

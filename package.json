@@ -1,0 +1,41 @@
+{
+  "name": "dsh-audit-mode",
+  "version": "0.1.0",
+  "private": false,
+  "description": "DeepSeek Harness 审核模式：一个只读、可审计的“监督 agent”预设；宿主级 enforce 保证写不进被审库，配套会话审计/要求台账/评测集/巡检/转交生成工具。",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "agent-preset",
+    "audit",
+    "review",
+    "read-only"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LA-D-13931/dsh-audit-mode.git"
+  },
+  "exports": {
+    "./enforce": "./enforce.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cordis.patch.yml",
+    "enforce.js",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "SECURITY.md",
+    "tools"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
