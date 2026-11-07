@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-fix — 2026-11-07
+
+- 适配 DSH 0.2.2-rc.1：移除 `tool-subagent-control/list-agents` 子路径（`list_agents` 并入主包）；`modelSelectionSettings` → `modelSelection`；`tool-fs` 显式 `applyPatch: false`。
+- enforce 改用 `agentPresets.composedPreset(ctx)`（0.2.2 的 `sessionProjections` 无全局 `stateOf`）。
+- 新增 `tools/预设体检/`：DSH 升级后查 preset roster 的 `broken` 原因。
+
 ## 0.1.0 — 2026-10-26
 
 首个可运行版本：

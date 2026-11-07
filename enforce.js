@@ -32,7 +32,6 @@ export const name = 'dsh-audit-mode/enforce'
 export const inject = ['tools', 'agentPresets', 'workingDirectory']
 
 const AUDIT_PRESET_ID = 'audit'
-const AGENT_PRESET_PROJECTION = 'agentPreset'
 const RUN_CODE_TOOL = 'run_code'
 
 /** 模型可见的安全工具面（含审核模式自己挂载的工具）。 */
@@ -209,7 +208,6 @@ export function apply(ctx) {
   const home = os.homedir()
   const agents = new Map()
   const warned = new Set()
-  const sessionProjections = ctx.get('sessionProjections')
   let workingDirectory
   try { workingDirectory = ctx.get('workingDirectory') } catch { workingDirectory = undefined }
 
@@ -237,21 +235,18 @@ export function apply(ctx) {
   }
 
   function presetIdOf(agent) {
-    const projections = sessionProjections === undefined ? ctx.get('sessionProjections') : sessionProjections
-    if (projections) {
-      try {
-        const state = projections.stateOf(agent.session, AGENT_PRESET_PROJECTION)
-        if (typeof state === 'string' && state !== '') return state
-      } catch (error) {
-        warnOnce('projection', `audit-enforce: cannot read the agentPreset projection: ${describeError(error)}`)
-      }
-    }
+    // 0.2.2 起：sessionProjections 只提供 register→handle，不再有全局 stateOf；
+    // 以 registry 的 composedPreset 为准，header 仅作旧会话回退。
     try {
       const id = ctx.agentPresets.composedPreset(agent.ctx)
       if (typeof id === 'string' && id !== '') return id
     } catch (error) {
       warnOnce('composed', `audit-enforce: cannot read the composed preset: ${describeError(error)}`)
     }
+    try {
+      const id = agent.session && agent.session.header && agent.session.header.agentPreset
+      if (typeof id === 'string' && id !== '') return id
+    } catch { /* ignore */ }
     return undefined
   }
 
